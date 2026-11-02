@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plant-memory.local/schemas/finding.schema.json",
+  "title": "Finding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "severity", "title", "summary", "affected_equipment_ids", "evidence_ids", "basis", "open_questions"],
+  "properties": {
+    "id": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": [
+        "duplicate_tag",
+        "duplicate_channel",
+        "missing_equipment",
+        "incompatible_units",
+        "conflicting_ranges",
+        "missing_evidence",
+        "unpriced_line",
+        "expired_price",
+        "superseded_evidence",
+        "unsupported_assertion",
+        "reuse_candidate",
+        "required_work",
+        "ambiguous_identifier",
+        "no_relevant_finding",
+        "other"
+      ]
+    },
+    "severity": { "type": "string", "enum": ["high", "medium", "low", "info"] },
+    "title": { "type": "string", "maxLength": 200 },
+    "summary": { "type": "string", "maxLength": 2000 },
+    "affected_equipment_ids": { "type": "array", "items": { "type": "string" } },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "basis": {
+      "type": "string",
+      "enum": ["rule", "recorded_fact", "candidate_interpretation", "engineer_decision"],
+      "description": "Rule findings come from the deterministic catalogue. Candidate interpretations are model output and are never 'verified'."
+    },
+    "rule_id": { "type": ["string", "null"] },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "review_status": { "type": "string", "enum": ["unreviewed", "accepted", "rejected", "needs_info"], "default": "unreviewed" }
+  }
+}

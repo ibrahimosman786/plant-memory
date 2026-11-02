@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plant-memory.local/schemas/estimate.schema.json",
+  "title": "Estimate",
+  "description": "Decimal values are transported as strings to preserve exactness. An incomplete estimate is never presented as a project total.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["currency", "rate_set_version", "lines", "priced_subtotal", "allowances", "unpriced", "exclusions", "complete"],
+  "properties": {
+    "currency": { "type": "string", "const": "CAD" },
+    "rate_set_version": { "type": "string" },
+    "lines": { "type": "array", "items": { "$ref": "#/$defs/line" } },
+    "priced_subtotal": { "type": "string", "pattern": "^-?[0-9]+(\\.[0-9]{1,2})?$" },
+    "allowances": { "type": "array", "items": { "$ref": "#/$defs/line" } },
+    "unpriced": { "type": "array", "items": { "$ref": "#/$defs/line" } },
+    "exclusions": { "type": "array", "items": { "type": "string" } },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "total", "assumptions"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "total": { "type": "string" },
+          "assumptions": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "complete": { "type": "boolean", "description": "True only when every line is priced and no allowance is open." }
+  },
+  "$defs": {
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "description", "quantity", "unit", "pricing_status", "classification", "origin"],
+      "properties": {
+        "id": { "type": "string" },
+        "kind": { "type": "string", "enum": ["part", "labour", "allowance", "service"] },
+        "description": { "type": "string" },
+        "equipment_ids": { "type": "array", "items": { "type": "string" } },
+        "quantity": { "type": "string" },
+        "unit": { "type": "string" },
+        "unit_price": { "type": ["string", "null"] },
+        "extended": { "type": ["string", "null"] },
+        "currency": { "type": "string" },
+        "price_source": { "type": ["string", "null"] },
+        "price_effective_date": { "type": ["string", "null"], "format": "date" },
+        "pricing_status": { "type": "string", "enum": ["priced", "unpriced", "expired", "allowance"] },
+        "assumption_status": { "type": "string", "enum": ["recorded", "assumed", "engineer_confirmed"], "default": "recorded" },
+        "classification": { "type": "string", "enum": ["included", "excluded", "optional"] },
+        "origin": {
+          "type": "object",
+          "required": ["kind", "ref"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "type": "string", "enum": ["rule", "finding", "evidence", "template", "engineer"] },
+            "ref": { "type": "string" }
+          }
+        },
+        "evidence_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

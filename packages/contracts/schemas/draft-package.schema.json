@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plant-memory.local/schemas/draft-package.schema.json",
+  "title": "DraftPackage",
+  "description": "Structured output the agent must return at the end of an investigation turn. The API validates every ID against the run's snapshot before persisting a report version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "scope_summary", "affected_equipment_ids", "finding_ids", "work_item_ids", "estimate_id", "checklist_ids", "reuse_candidates", "open_questions", "sections_incomplete"],
+  "properties": {
+    "status": { "type": "string", "enum": ["review_ready", "needs_clarification", "incomplete"] },
+    "scope_summary": { "type": "string", "maxLength": 4000 },
+    "affected_equipment_ids": { "type": "array", "items": { "type": "string" } },
+    "finding_ids": { "type": "array", "items": { "type": "string" } },
+    "work_item_ids": { "type": "array", "items": { "type": "string" } },
+    "estimate_id": { "type": ["string", "null"] },
+    "checklist_ids": { "type": "array", "items": { "type": "string" } },
+    "reuse_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["equipment_id", "rationale", "evidence_ids", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "equipment_id": { "type": "string" },
+          "rationale": { "type": "string", "maxLength": 1000 },
+          "evidence_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "status": { "type": "string", "enum": ["candidate", "insufficient_evidence"] }
+        }
+      }
+    },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "sections_incomplete": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["section", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "section": { "type": "string", "enum": ["scope", "dependencies", "consistency", "requirements", "work_breakdown", "estimate", "checklist"] },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+[project]
+name = "plant-memory-api"
+version = "0.1.0"
+description = "Plant Memory engineering backend: records, evidence, search, rules, estimates, runs"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.5",
+  "sqlalchemy>=2.0.35",
+  "alembic>=1.13",
+  "psycopg[binary,pool]>=3.2",
+  "pgvector>=0.3.5",
+  "python-multipart>=0.0.12",
+  "PyJWT[crypto]>=2.9",
+  "httpx>=0.27",
+  "redis>=5.1",
+  "boto3>=1.35",
+  "openpyxl>=3.1",
+  "pypdf>=5.0",
+  "pypdfium2>=4.30",
+  "python-docx>=1.1",
+  "Pint>=0.24",
+  "jsonschema>=4.23",
+  "sse-starlette>=2.1",
+  "opentelemetry-api>=1.27",
+  "opentelemetry-sdk>=1.27",
+  "opentelemetry-exporter-otlp-proto-http>=1.27",
+  "opentelemetry-instrumentation-fastapi>=0.48b0",
+  "structlog>=24.4",
+  "reportlab>=4.2",
+  "Pillow>=10.4",
+]
+
+[project.optional-dependencies]
+# Heavy, optional extraction stack. Without these the pipeline falls back to pypdf text
+# extraction and hash embeddings and marks OCR-needed pages as `partial`.
+extract = [
+  "docling>=2.10",
+  "fastembed>=0.4",
+  "rapidocr-onnxruntime>=1.3",
+]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "ruff>=0.6",
+  "mypy>=1.11",
+  "pm-synth",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["plant_memory*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"

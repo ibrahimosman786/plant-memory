@@ -1,0 +1,44 @@
+# dependencies
+node_modules/
+.pnpm-store/
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# builds
+.next/
+.output/
+dist/
+build/
+.turbo/
+.eve/
+
+# local data
+.data/
+packages/synthetic-data/out/
+services/api/alembic/.generated/
+*.sqlite
+*.db
+
+# env and secrets
+.env
+.env.*
+!.env.example
+
+# infra
+infra/terraform/**/.terraform/
+infra/terraform/**/*.tfstate
+infra/terraform/**/*.tfstate.backup
+infra/terraform/**/*.tfplan
+
+# tooling
+.DS_Store
+coverage/
+playwright-report/
+test-results/
+k6-results/

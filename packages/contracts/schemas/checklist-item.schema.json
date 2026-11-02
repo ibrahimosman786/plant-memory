@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plant-memory.local/schemas/checklist-item.schema.json",
+  "title": "ChecklistItem",
+  "description": "A proposed verification. The system never marks an item passed; `reviewer_decision` is set only by a reviewer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "requirement", "proposed_verification", "expected_outcome", "expected_outcome_status", "evidence_ids", "template_id", "reviewer_decision"],
+  "properties": {
+    "id": { "type": "string" },
+    "requirement": { "type": "string" },
+    "proposed_verification": { "type": "string" },
+    "expected_outcome": { "type": ["string", "null"] },
+    "expected_outcome_status": { "type": "string", "enum": ["from_requirement", "missing"] },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "finding_ids": { "type": "array", "items": { "type": "string" } },
+    "equipment_ids": { "type": "array", "items": { "type": "string" } },
+    "template_id": { "type": "string" },
+    "reviewer_decision": { "type": "string", "enum": ["pending", "accepted", "modified", "rejected"], "default": "pending" }
+  }
+}

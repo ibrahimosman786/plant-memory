@@ -1,0 +1,22 @@
+{
+  "name": "plant-memory",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Plant Memory — agentic upgrade engineering assistant (synthetic-data demonstration)",
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter @plant-memory/web dev",
+    "dev:agent": "pnpm --filter @plant-memory/agent dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "contracts:generate": "pnpm --filter @plant-memory/contracts generate"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

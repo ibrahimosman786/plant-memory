@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plant-memory.local/schemas/tool-result.schema.json",
+  "title": "ToolResult",
+  "description": "Envelope returned by every engineering tool exposed to the agent. `data` is tool-specific. A failed or blocked lookup must never be interpreted as 'no issue found'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "snapshot_id", "data", "evidence_ids", "warnings", "unresolved", "tool_version"],
+  "properties": {
+    "status": { "type": "string", "enum": ["complete", "partial", "blocked", "failed"] },
+    "snapshot_id": { "type": "string", "description": "Immutable project snapshot the result was computed against." },
+    "data": { "type": "object" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" }, "description": "Evidence span IDs that support `data`." },
+    "warnings": { "type": "array", "items": { "type": "string" } },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "additionalProperties": false,
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "subject": { "type": "string" }
+        }
+      }
+    },
+    "tool_version": { "type": "string" }
+  }
+}

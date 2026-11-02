@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://plant-memory.local/schemas/extraction-candidate.schema.json",
+  "title": "ExtractionCandidates",
+  "description": "Model-facing output for candidate fact extraction. Every assertion must cite evidence IDs that were supplied in the prompt. Unsupported fields stay null. Relationships are always candidates.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["assertions", "relationships", "abstentions"],
+  "properties": {
+    "assertions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["raw_tag", "attribute", "value", "unit", "evidence_ids"],
+        "properties": {
+          "raw_tag": { "type": "string" },
+          "attribute": { "type": "string" },
+          "value": { "type": ["string", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "evidence_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_tag", "target_tag", "relationship_type", "evidence_ids"],
+        "properties": {
+          "source_tag": { "type": "string" },
+          "target_tag": { "type": "string" },
+          "relationship_type": { "type": "string", "enum": ["measures", "signals_to", "wired_to", "controls", "powers", "installed_in", "part_of"] },
+          "evidence_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        }
+      }
+    },
+    "abstentions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reason"],
+        "properties": {
+          "raw_tag": { "type": ["string", "null"] },
+          "attribute": { "type": ["string", "null"] },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}
