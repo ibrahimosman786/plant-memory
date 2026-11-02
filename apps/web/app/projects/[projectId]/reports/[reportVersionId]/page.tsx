@@ -1,11 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { EstimatePanel } from "@/components/estimate/estimate-panel";
 import { FindingCard } from "@/components/findings/finding-card";
+import { ReportAnalysis } from "@/components/findings/report-analysis";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, TextArea } from "@/components/ui/input";
@@ -48,13 +49,10 @@ export default function ReportPage() {
   const findings = pkg.findings ?? [];
   const checklist = pkg.checklist ?? [];
 
-  const items = useMemo(
-    () => [
+  const items = [
       ...findings.map((f) => ({ kind: "finding" as const, id: f.id, decision: itemDecisions[`finding:${f.id}`] })),
       ...checklist.map((c) => ({ kind: "checklist" as const, id: c.id, decision: itemDecisions[`checklist:${c.id}`] })),
-    ],
-    [findings, checklist, itemDecisions],
-  );
+    ];
 
   const review = useMutation({
     mutationFn: () =>
@@ -138,6 +136,8 @@ export default function ReportPage() {
           ))}
         </Card>
       ) : null}
+
+      <ReportAnalysis projectId={projectId} reportVersionId={reportVersionId} stale={rv.stale} />
 
       <section className="space-y-3">
         <h2 className="text-heading font-extrabold">Findings</h2>

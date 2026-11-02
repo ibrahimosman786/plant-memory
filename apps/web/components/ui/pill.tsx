@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const tones = {
-  primary: "bg-primary text-on-primary",
-  secondary: "bg-secondary text-on-primary",
+  primary: "bg-primary/10 text-primary",
+  secondary: "bg-secondary/10 text-secondary",
   outline: "border border-hairline text-ink bg-transparent",
   muted: "border border-hairline text-muted bg-surface",
-  live: "bg-secondary text-on-primary",
+  live: "bg-secondary/10 text-secondary",
 } as const;
 
 export function Pill({
@@ -19,7 +19,7 @@ export function Pill({
   children: ReactNode;
 }) {
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-caption font-semibold uppercase tracking-wide", tones[tone], className)}>
+    <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium", tones[tone], className)}>
       {children}
     </span>
   );

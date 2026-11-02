@@ -18,7 +18,7 @@ from ..cache import LimitExceeded
 from ..db.models import ChangeRequest, ChecklistItem, Clarification, Estimate, Finding, Report, ReportVersion, Run, WorkItem
 from ..db.session import TenantScope, scoped_session
 from ..engine.scope import finding_out, work_item_out
-from ..model_gateway import BudgetExhausted
+from ..model_gateway import BudgetExhausted, approved_models
 from ..runs.events import event_out, events_after
 from ..runs.service import ACTIVE_STATES, answer_clarification, cancel_run, start_run
 
@@ -37,7 +37,7 @@ def cr_out(cr: ChangeRequest) -> dict:
 
 
 def run_out(r: Run) -> dict:
-    return {"id": str(r.id), "change_request_id": str(r.change_request_id), "snapshot_id": str(r.snapshot_id), "state": r.state, "backend": r.model_config_.get("backend"),
+    return {"id": str(r.id), "change_request_id": str(r.change_request_id), "snapshot_id": str(r.snapshot_id), "state": r.state, "backend": r.model_config_.get("backend"), "model": r.model_config_.get("reasoning"), "model_connected": r.model_config_.get("model_connected", False), "fallback_reason": r.model_config_.get("fallback_reason"),
             "tool_invocations": r.tool_invocations, "clarification_cycles": r.clarification_cycles, "input_tokens": r.input_tokens, "output_tokens": r.output_tokens,
             "cost_usd": str(r.cost_usd), "deadline_at": r.deadline_at.isoformat() if r.deadline_at else None, "started_at": r.started_at.isoformat() if r.started_at else None,
             "finished_at": r.finished_at.isoformat() if r.finished_at else None, "error": r.error, "cancel_requested": r.cancel_requested, "created_at": r.created_at.isoformat()}
@@ -64,12 +64,15 @@ def list_change_requests(project_id: uuid.UUID, principal: Annotated[Principal, 
 class StartRunIn(BaseModel):
     snapshot_id: uuid.UUID
     backend: str | None = Field(default=None, pattern="^(eve|local|gateway)$")
+    model: str | None = Field(default=None, max_length=150)
 
 
 @router.post("/change-requests/{change_request_id}/runs", status_code=202)
 def start(project_id: uuid.UUID, change_request_id: uuid.UUID, body: StartRunIn, principal: Annotated[Principal, Depends(require_project_role("analyst"))], s: DbDep) -> dict:
+    if body.model and body.model not in approved_models():
+        raise HTTPException(422, "model is not in the approved set")
     try:
-        run = start_run(s, principal, project_id, change_request_id, body.snapshot_id, backend=body.backend)
+        run = start_run(s, principal, project_id, change_request_id, body.snapshot_id, backend=body.backend, model=body.model)
     except ValueError as exc:
         raise HTTPException(404, str(exc)) from exc
     except LimitExceeded as exc:

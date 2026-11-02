@@ -41,6 +41,26 @@ class ResolveIn(_Strict):
     query: str = Field(min_length=1, max_length=200)
 
 
+class InventoryIn(_Strict):
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=20, ge=1, le=50)
+
+
+def _inventory(ctx: SnapshotContext, run: Run, inp: InventoryIn) -> ToolResult:
+    equipment = ctx.equipment()
+    page = equipment[inp.offset:inp.offset + inp.limit]
+    next_offset = inp.offset + len(page)
+    return ctx.result({
+        "snapshot_id": str(ctx.snapshot_id), "snapshot_name": ctx.snapshot.name,
+        "documents": [{"version_id": str(vid), "source": ctx.source_label(vid)} for vid in ctx.version_ids],
+        "equipment": [{"id": str(e.id), "tag": e.normalized_tag, "description": e.description,
+                       "type": e.equipment_type} for e in page],
+        "equipment_total": len(equipment), "offset": inp.offset,
+        "next_offset": next_offset if next_offset < len(equipment) else None,
+        "coverage": "Inventory of this frozen snapshot only; use search_evidence and get_evidence to inspect sources.",
+    })
+
+
 class SearchIn(_Strict):
     query: str = Field(min_length=1, max_length=500)
     kinds: list[str] | None = None
@@ -110,6 +130,7 @@ def _validate_package(ctx: SnapshotContext, run: Run, inp: PackageIn) -> ToolRes
 
 
 TOOLS: dict[str, tuple[type[BaseModel], Callable[..., ToolResult], str]] = {
+    "get_snapshot_inventory": (InventoryIn, _inventory, "List document revisions and a page of equipment in this authorized snapshot. Follow next_offset for more equipment."),
     "resolve_equipment": (ResolveIn, lambda ctx, run, i: resolve_equipment(ctx, i.query), "Resolve a tag or description to equipment records in the snapshot."),
     "search_evidence": (SearchIn, lambda ctx, run, i: search_evidence(ctx, i.query, kinds=i.kinds, tags=i.tags, limit=i.limit), "Hybrid search over evidence passages (tag, lexical, vector)."),
     "get_evidence": (EvidenceIn, _get_evidence, "Fetch evidence spans by id with document, page/cell locators and text."),
@@ -131,6 +152,9 @@ def tool_manifest() -> list[dict]:
 def invoke(session: Session, run: Run, name: str, raw_input: dict) -> ToolResult:
     """Validate input, enforce run limits, execute, log events. Raises ToolError on limit/validation."""
     settings = get_settings()
+    session.refresh(run, attribute_names=["cancel_requested"])
+    if run.cancel_requested:
+        raise ToolError("cancelled", "Investigation cancelled", 409)
     if name not in TOOLS:
         raise ToolError("unknown_tool", f"unknown tool {name}", 404)
     if run.cancel_requested or run.state in ("cancelled", "failed", "completed", "incomplete"):

@@ -11,7 +11,7 @@ from sqlalchemy import text
 from . import API_VERSION, PIPELINE_VERSION, RULES_VERSION, TEMPLATES_VERSION, TOOLS_VERSION
 from .config import get_settings
 from .db.session import get_engine
-from .routers import auth, documents, internal_tools, projects, records, reviews, runs
+from .routers import analysis, auth, chat, documents, internal_tools, projects, records, reviews, runs
 from .runs.service import resume_orphaned_runs
 
 log = logging.getLogger("plant_memory")
@@ -30,9 +30,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Plant Memory API", version=API_VERSION, lifespan=lifespan, docs_url="/docs" if get_settings().environment != "production" else None)
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"], expose_headers=["Content-Disposition"])
+app.add_middleware(CORSMiddleware, allow_origins=get_settings().cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"], expose_headers=["Content-Disposition"])
 
-for r in (auth.router, projects.router, documents.router, records.router, runs.router, reviews.router, internal_tools.router):
+for r in (auth.router, projects.router, documents.router, records.router, runs.router, reviews.router, analysis.router, chat.router, internal_tools.router):
     app.include_router(r)
 
 

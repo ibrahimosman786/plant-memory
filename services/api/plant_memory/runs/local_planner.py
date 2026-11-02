@@ -46,7 +46,7 @@ def run_local_plan(run_id: uuid.UUID, scope: TenantScope, *, resume: bool = Fals
         try:
             _plan(s, run, cr, snap, resume)
         except ToolError as exc:
-            run.state = "incomplete" if exc.code in ("tool_limit", "deadline") else "failed"
+            run.state = "cancelled" if exc.code == "cancelled" else ("incomplete" if exc.code in ("tool_limit", "deadline") else "failed")
             run.error = f"{exc.code}: {exc}"
             run.finished_at = datetime.now(timezone.utc)
             emit(s, run, "run.failed", {"error": run.error})

@@ -29,6 +29,7 @@ services/api/alembic/.generated/
 .env
 .env.*
 !.env.example
+!**/.env.example
 
 # infra
 infra/terraform/**/.terraform/

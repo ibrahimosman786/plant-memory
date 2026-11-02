@@ -87,12 +87,14 @@ export default function RunPage() {
       </div>
 
       <div className="flex flex-wrap gap-2 text-caption text-muted">
+        <span>{r.model_connected ? `AI: ${r.model}` : r.backend === "gateway" && ACTIVE.has(r.state) ? `Requested: ${r.model}` : "Deterministic checklist · no confirmed model call"}</span>
         <span>Tools {r.tool_invocations}</span>
         <span>Tokens {r.input_tokens + r.output_tokens}</span>
         <span>Cost USD {r.cost_usd}</span>
         {r.deadline_at ? <span>Deadline {when(r.deadline_at)}</span> : null}
       </div>
       {r.error ? <Card>{r.error}</Card> : null}
+      {r.fallback_reason ? <Card>AI unavailable; checklist fallback: {r.fallback_reason}</Card> : null}
 
       {pendingClarification ? (
         <Card className="space-y-3">

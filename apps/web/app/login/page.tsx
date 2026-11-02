@@ -1,8 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/providers";
+import { Brand } from "@/components/ui/brand";
 import { ClerkEntry } from "@/components/auth/clerk-entry";
 import { AgentStatus } from "@/components/guide/agent-status";
 import { HowItWorks } from "@/components/guide/how-it-works";
@@ -13,6 +15,7 @@ import type { Role } from "@/lib/types";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const status = useQuery({ queryKey: ["system-status"], queryFn: api.status });
   const [email, setEmail] = useState("engineer@spartan.local");
   const [name, setName] = useState("Spartan engineer");
   const [role, setRole] = useState<Role>("admin");
@@ -34,18 +37,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-canvas px-4 py-8">
+    <div className="min-h-dvh bg-canvas px-5 py-10">
+      <div className="mx-auto mb-10 max-w-5xl"><Brand /></div>
       <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[minmax(0,380px)_1fr]">
       <Card elevated className="w-full space-y-6 p-6 h-fit">
         <div>
-          <p className="text-caption text-muted uppercase">Spartan Controls</p>
-          <h1 className="text-display font-extrabold">Plant Memory</h1>
+          <p className="text-caption text-primary uppercase tracking-widest">Welcome back</p>
+          <h1 className="text-display font-extrabold">Open your workspace</h1>
           <p className="mt-2 text-body text-muted">
-            Enter the Spartan Controls workspace. Use Google or email, or the demo engineer on this machine.
+            Sign in to your engineering workspace. Local demonstration access is shown only when enabled by the API.
           </p>
         </div>
         <ClerkEntry />
-        <form onSubmit={onSubmit} className="space-y-3">
+        {status.data?.dev_login_enabled ? <form onSubmit={onSubmit} className="space-y-3">
           <label className="block space-y-1">
             <span className="text-caption text-muted">Email</span>
             <TextInput value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
@@ -81,7 +85,7 @@ export default function LoginPage() {
               Use demo engineer
             </Button>
           </div>
-        </form>
+        </form> : null}
       </Card>
       <div className="space-y-6">
         <AgentStatus />

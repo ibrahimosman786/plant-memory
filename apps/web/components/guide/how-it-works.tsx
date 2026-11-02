@@ -31,7 +31,7 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <div className="space-y-3">
-      <h2 className="text-heading font-extrabold">How Spartan Controls uses this</h2>
+      <h2 className="text-heading font-extrabold">Your path from records to review</h2>
       <p className="text-body text-muted max-w-3xl">
         Plant Memory is a workspace for an upgrade assessment. An application engineer loads the project records, asks for an investigation, and reviews the draft before anyone treats it as a decision.
       </p>

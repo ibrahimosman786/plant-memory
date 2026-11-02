@@ -81,14 +81,37 @@ export function Providers({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    loadMe(getToken()).finally(() => setReady(true));
+    let disposed = false;
+    async function hydrate() {
+      const stored = getToken();
+      let identity: Me | null = null;
+      let valid = stored;
+      if (stored) {
+        try { identity = await api.me(); }
+        catch (error) {
+          if (error instanceof ApiError && error.status === 401) {
+            valid = null;
+            persistToken(null);
+          }
+        }
+      }
+      return { identity, valid };
+    }
+    void hydrate().then(({ identity, valid }) => {
+      if (disposed) return;
+      setMe(identity);
+      setTokenState(valid);
+      setReady(true);
+    });
+    return () => { disposed = true; };
   }, [loadMe]);
 
   useEffect(() => {
     if (!ready) return;
-    const isPublic = pathname === "/login" || pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
+    const isAuthPage = pathname === "/login" || pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
+    const isPublic = pathname === "/" || isAuthPage;
     if (!token && !isPublic) router.replace("/login");
-    if (token && isPublic) router.replace("/projects");
+    if (token && isAuthPage) router.replace("/projects");
   }, [ready, token, pathname, router]);
 
   const login = useCallback(async (next: string) => {

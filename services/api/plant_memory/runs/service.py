@@ -29,7 +29,7 @@ from ..config import get_settings
 from ..contracts import DraftPackage
 from ..db.models import ChangeRequest, Clarification, Run, Snapshot
 from ..db.session import TenantScope, scoped_session
-from ..model_gateway import BudgetExhausted, ModelGateway, assert_budget_available, record_external_usage
+from ..model_gateway import BudgetExhausted, ModelGateway, approved_models, assert_budget_available, record_external_usage
 from .events import emit
 from .eve_client import EveClient, EveError
 from .local_planner import run_local_plan
@@ -56,8 +56,10 @@ def build_task_message(run: Run, cr: ChangeRequest, snapshot: Snapshot) -> str:
     )
 
 
-def start_run(session: Session, principal: Principal, project_id: uuid.UUID, change_request_id: uuid.UUID, snapshot_id: uuid.UUID, *, backend: str | None = None) -> Run:
+def start_run(session: Session, principal: Principal, project_id: uuid.UUID, change_request_id: uuid.UUID, snapshot_id: uuid.UUID, *, backend: str | None = None, model: str | None = None) -> Run:
     settings = get_settings()
+    if model and model not in approved_models():
+        raise ValueError("model is not in the approved set")
     cr = session.get(ChangeRequest, change_request_id)
     snap = session.get(Snapshot, snapshot_id)
     if cr is None or cr.project_id != project_id or snap is None or snap.project_id != project_id:
@@ -69,7 +71,7 @@ def start_run(session: Session, principal: Principal, project_id: uuid.UUID, cha
     if backend == "eve" or (backend == "gateway" and ModelGateway().available()):
         assert_budget_available()
     run = Run(org_id=principal.org_id, project_id=project_id, change_request_id=cr.id, snapshot_id=snap.id, state="queued", created_by=principal.user_id,
-              model_config_={"backend": backend, "fast": settings.model_fast, "reasoning": settings.model_reasoning, "prompt_version": PROMPT_VERSION},
+              model_config_={"backend": backend, "fast": settings.model_fast, "reasoning": model or settings.model_reasoning, "prompt_version": PROMPT_VERSION},
               deadline_at=datetime.now(timezone.utc) + timedelta(seconds=settings.run_active_deadline_seconds))
     session.add(run)
     session.flush()

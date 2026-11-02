@@ -73,7 +73,8 @@ class SnapshotContext:
     def equipment_by_id(self, ids: list[uuid.UUID]) -> dict[uuid.UUID, Equipment]:
         if not ids:
             return {}
-        rows = self.s.execute(select(Equipment).where(Equipment.id.in_(ids), Equipment.project_id == self.project_id)).scalars().all()
+        rows = self.s.execute(select(Equipment).where(Equipment.id.in_(ids), Equipment.project_id == self.project_id,
+            or_(Equipment.document_version_id.in_(self.version_ids), Equipment.document_version_id.is_(None)))).scalars().all()
         return {e.id: e for e in rows}
 
     def assertions(self, equipment_ids: list[uuid.UUID] | None = None, attributes: list[str] | None = None) -> list[Assertion]:

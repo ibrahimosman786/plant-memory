@@ -154,6 +154,8 @@ export const RUN_EVENT_TYPES = [
   "limit.reached",
   "package.saved",
   "run.completed",
+  "agent.said",
+  "report.analysis",
   "run.failed",
   "run.cancelled",
 ] as const;

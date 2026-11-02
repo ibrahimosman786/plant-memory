@@ -5,8 +5,8 @@ export function Card({ className, elevated, ...props }: HTMLAttributes<HTMLDivEl
   return (
     <div
       className={cn(
-        "bg-surface text-ink rounded-card border border-hairline p-4",
-        elevated && "shadow-[0_12px_40px_rgba(0,0,0,0.4)]",
+        "bg-surface text-ink rounded-card border border-hairline p-5 shadow-[0_2px_8px_rgba(24,48,71,0.025)]",
+        elevated && "shadow-[0_12px_40px_rgba(24,48,71,0.08)]",
         className,
       )}
       {...props}

@@ -101,15 +101,23 @@ const post = <T>(path: string, body?: unknown, extra?: HeadersInit) =>
   request<T>(path, { method: "POST", body: body == null ? undefined : JSON.stringify(body), headers: extra });
 
 export const api = {
+  chat: (projectId: string, body: { question: string; snapshot_id: string; model: string; history: { role: "user" | "assistant"; content: string }[] }) => post<ChatAnswer>(`/v1/projects/${projectId}/chat`, body),
   health: () => get<{ ok: boolean; db: boolean }>("/healthz"),
   status: () =>
     get<{
       database: boolean;
       auth_backend: string;
+      dev_login_enabled: boolean;
       agent_backend: string;
       model_connected: boolean;
       reasoning_model: string | null;
+      model_configured: boolean;
+      connection_verified: boolean;
+      model_health: { state: string; message: string; checked_at: string | null };
+      default_model: string;
+      models: string[];
     }>("/v1/status"),
+  checkModel: (model: string) => post<{ model: string; state: string; message: string; checked_at: string | null }>("/v1/models/check", { model }),
   me: () => get<Me>("/v1/me"),
   devToken: (body: { email: string; name?: string; org_name?: string; role?: Role }) =>
     post<{ token: string; user_id: string; org_id: string; role: Role }>("/v1/auth/dev-token", body),
@@ -162,8 +170,8 @@ export const api = {
   changeRequests: (projectId: string) => get<ChangeRequest[]>(`/v1/projects/${projectId}/change-requests`),
   createChangeRequest: (projectId: string, body: { title: string; request_text: string; target_tags?: string[]; assumptions?: string[] }) =>
     post<ChangeRequest>(`/v1/projects/${projectId}/change-requests`, body),
-  startRun: (projectId: string, changeRequestId: string, snapshot_id: string, backend?: string) =>
-    post<Run>(`/v1/projects/${projectId}/change-requests/${changeRequestId}/runs`, { snapshot_id, backend }),
+  startRun: (projectId: string, changeRequestId: string, snapshot_id: string, backend?: string, model?: string) =>
+    post<Run>(`/v1/projects/${projectId}/change-requests/${changeRequestId}/runs`, { snapshot_id, backend, model }),
   run: (projectId: string, runId: string) => get<Run>(`/v1/projects/${projectId}/runs/${runId}`),
   runEvents: (projectId: string, runId: string, after = -1) =>
     get<RunEvent[]>(`/v1/projects/${projectId}/runs/${runId}/events${qs({ after })}`),
@@ -177,6 +185,10 @@ export const api = {
   reports: (projectId: string) => get<ReportListItem[]>(`/v1/projects/${projectId}/reports`),
   reportVersion: (projectId: string, reportVersionId: string) =>
     get<ReportVersion>(`/v1/projects/${projectId}/report-versions/${reportVersionId}`),
+  analyses: (projectId: string, reportVersionId: string) =>
+    get<ReportAnalysis[]>(`/v1/projects/${projectId}/report-versions/${reportVersionId}/analyses`),
+  analyzeReport: (projectId: string, reportVersionId: string, question: string, model: string) =>
+    post<ReportAnalysis>(`/v1/projects/${projectId}/report-versions/${reportVersionId}/analyses`, { question, model }),
   createReview: (
     projectId: string,
     reportVersionId: string,
@@ -194,4 +206,27 @@ export const api = {
     post<{ url: string; format: string; bytes: number; stale: boolean }>(
       `/v1/projects/${projectId}/report-versions/${reportVersionId}/export${qs({ format })}`,
     ),
+};
+
+export type ReportAnalysis = {
+  id: string;
+  question: string;
+  model: string;
+  created_at: string;
+  cost_usd: string;
+  notice: string;
+  analysis: {
+    claims: { statement: string; evidence_ids: string[] }[];
+    questions_for_engineer: string[];
+    limitations: string[];
+  };
+};
+
+export type ChatAnswer = {
+  analysis: ReportAnalysis["analysis"];
+  sources: { id: string; filename: string; text: string; revision_label: string | null }[];
+  model: string;
+  snapshot_id: string;
+  steps: string[];
+  cost_usd: string;
 };

@@ -44,10 +44,10 @@ export function ClerkEntry() {
           </SignUpButton>
         </Show>
         <Show when="signed-in">
-          <p className="text-body text-muted">{error ?? "Signed in. Opening the Spartan Controls workspace…"}</p>
+          <p className="text-body text-muted">{error ?? "Signed in. Opening your workspace…"}</p>
         </Show>
       </Suspense>
-      <p className="text-caption text-muted">A Google or email account joins this local workspace so you can open the demo project. The demo engineer button below does the same without leaving this machine.</p>
+      <p className="text-caption text-muted">Use a verified Google or email account. Workspace access is determined by your existing membership.</p>
     </div>
   );
 }

@@ -38,6 +38,7 @@ class Settings(BaseSettings):
 
     auth_backend: str = "dev"
     auth_dev_secret: str = "change-me-dev-secret-at-least-32-chars-long"
+    session_exchange_secret: str | None = None
     cognito_user_pool_id: str | None = None
     cognito_region: str | None = None
     cognito_client_id: str | None = None
@@ -58,6 +59,8 @@ class Settings(BaseSettings):
     model_fast: str = "anthropic/claude-haiku-5.5"
     model_reasoning: str = "anthropic/claude-sonnet-5.5"
     model_escalation: str = "anthropic/claude-opus-5.5"
+    model_alternatives: list[str] = ["openai/gpt-6-astra"]
+    cors_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
     embedding_model: str = "BAAI/bge-small-en-v1.5"
     embedding_backend: str = "fastembed"
     embedding_dim: int = 384

@@ -27,18 +27,21 @@ export default function InvestigatePage() {
   const [tags, setTags] = useState("CP-101");
   const [assumptions, setAssumptions] = useState("Reuse existing field instruments where recorded evidence supports it.");
   const [snapshotId, setSnapshotId] = useState("");
+  const [model, setModel] = useState("");
+  const [backend, setBackend] = useState("gateway");
+  const status = useQuery({ queryKey: ["system-status"], queryFn: api.status });
 
   const start = useMutation({
     mutationFn: async () => {
+      const snap = snapshotId || snapshots.data?.[0]?.id;
+      if (!snap) throw new Error("Freeze a snapshot before starting an investigation.");
       const cr = await api.createChangeRequest(projectId, {
         title,
         request_text: requestText,
         target_tags: tags.split(/[\s,]+/).filter(Boolean),
         assumptions: assumptions ? [assumptions] : [],
       });
-      const snap = snapshotId || snapshots.data?.[0]?.id;
-      if (!snap) throw new Error("Freeze a snapshot before starting an investigation.");
-      return api.startRun(projectId, cr.id, snap, "gateway");
+      return api.startRun(projectId, cr.id, snap, backend, model || status.data?.default_model);
     },
     onSuccess: (run) => router.push(`/projects/${projectId}/runs/${run.id}`),
   });
@@ -61,8 +64,8 @@ export default function InvestigatePage() {
 
       <Card className="space-y-3">
         <form onSubmit={onStart} className="space-y-3">
-          <TextInput value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <TextArea value={requestText} onChange={(e) => setRequestText(e.target.value)} required />
+          <TextInput aria-label="Request title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <TextArea aria-label="Change request" value={requestText} onChange={(e) => setRequestText(e.target.value)} required />
           <TextInput value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Target tags" />
           <TextInput value={assumptions} onChange={(e) => setAssumptions(e.target.value)} placeholder="Assumptions the engineer is willing to state" />
           <Select value={snapshotId} onChange={(e) => setSnapshotId(e.target.value)}>
@@ -73,8 +76,22 @@ export default function InvestigatePage() {
               </option>
             ))}
           </Select>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="space-y-1 text-ui">Investigation mode
+              <Select value={backend} onChange={(e) => setBackend(e.target.value)}>
+                <option value="gateway">AI agent with engineering checks</option>
+                <option value="local">Deterministic checklist · no model calls</option>
+              </Select>
+            </label>
+            <label className="space-y-1 text-ui">Investigation model
+              <Select value={model || status.data?.default_model || ""} onChange={(e) => setModel(e.target.value)} disabled={backend === "local" || !status.data}>
+                {(status.data?.models ?? []).map((id) => <option key={id} value={id}>{id}</option>)}
+              </Select>
+            </label>
+          </div>
+          {backend === "gateway" && status.data && !status.data.model_configured ? <p className="text-ui text-muted">No model credential is configured. This run will explicitly use the deterministic checklist.</p> : null}
           {start.error ? <p className="text-ui">{(start.error as Error).message}</p> : null}
-          <Button type="submit" disabled={start.isPending}>
+          <Button type="submit" disabled={start.isPending || !snapshots.data?.length}>
             {start.isPending ? "Starting…" : "Run investigation"}
           </Button>
         </form>

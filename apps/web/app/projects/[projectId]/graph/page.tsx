@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,6 @@ function GraphPageInner() {
   const [from, setFrom] = useState(initial);
   const startId = from || initial;
 
-  useEffect(() => {
-    if (!from && initial) setFrom(initial);
-  }, [from, initial]);
   const [depth, setDepth] = useState(3);
   const [view, setView] = useState<"all" | "recorded" | "verified" | "candidate">("all");
 

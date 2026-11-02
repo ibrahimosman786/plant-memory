@@ -198,6 +198,9 @@ export type Run = {
   snapshot_id: string;
   state: RunState;
   backend?: string;
+  model?: string;
+  model_connected?: boolean;
+  fallback_reason?: string;
   tool_invocations: number;
   clarification_cycles: number;
   input_tokens: number;

@@ -30,12 +30,12 @@ export default function ProjectsPage() {
 
   return (
     <AppShell>
-      <section className="rounded-card overflow-hidden border border-hairline mb-8" style={{ background: "linear-gradient(135deg, rgba(0,178,75,0.18), rgba(0,117,255,0.12))" }}>
+      <section className="rounded-card overflow-hidden border border-hairline mb-8" style={{ background: "linear-gradient(135deg, rgba(0,85,135,0.07), rgba(255,255,255,0.9))" }}>
         <div className="p-6 md:p-8 space-y-3 max-w-3xl">
           <p className="text-caption text-muted uppercase">Spartan Controls · demonstration</p>
-          <h1 className="text-display font-extrabold">Investigate replacing this control panel.</h1>
+          <h1 className="text-display font-extrabold">Your engineering workspace.</h1>
           <p className="text-body text-ink max-w-2xl">
-            Plant Memory reads authorized project records, keeps conflicting facts side by side, and drafts an evidence-linked upgrade package. It does not approve engineering decisions or operate live equipment.
+            Choose a project to explore its documents, ask the AI assistant a question, or investigate an engineering change.
           </p>
         </div>
       </section>
@@ -57,10 +57,10 @@ export default function ProjectsPage() {
         />
       ) : null}
 
-      <div className="rail mb-8 flex gap-3 overflow-x-auto pb-2">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {(projects.data ?? []).map((p) => (
           <Link key={p.id} href={`/projects/${p.id}`}>
-            <Tile className="w-[220px] h-[160px] p-4 flex flex-col justify-between">
+            <Tile className="min-h-[180px] p-6 hover:border-primary/40 hover:shadow-md flex flex-col justify-between">
               <div>
                 <p className="text-title line-clamp-2">{p.name}</p>
                 <p className="mt-2 text-caption text-muted line-clamp-3">{p.description || "No description"}</p>
@@ -78,16 +78,16 @@ export default function ProjectsPage() {
         <EmptyState title="No projects yet" body="Create a project, upload the synthetic pumping-station records, then freeze a snapshot before investigating." />
       ) : null}
 
-      <Card className="max-w-xl space-y-3">
-        <h2 className="text-heading font-extrabold">New project</h2>
+      <details className="max-w-xl rounded-xl border border-hairline bg-white p-5"><summary className="cursor-pointer text-title font-semibold">Create a new project</summary><Card className="mt-4 space-y-3 border-0 p-0 shadow-none">
+
         <form onSubmit={onCreate} className="space-y-3">
-          <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="Project name" required />
-          <TextArea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What plant or panel is this?" />
+          <TextInput aria-label="Project name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Project name" required />
+          <TextArea aria-label="Project description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What plant or panel is this?" />
           <Button type="submit" disabled={create.isPending}>
             Create project
           </Button>
         </form>
-      </Card>
+      {create.error ? <p role="alert">{create.error.message}</p> : null}</Card></details>
     </AppShell>
   );
 }

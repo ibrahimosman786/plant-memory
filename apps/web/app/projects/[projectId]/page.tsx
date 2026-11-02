@@ -40,9 +40,9 @@ export default function ProjectOverviewPage() {
 
   return (
     <div className="space-y-8 pb-16">
-      <section className="rounded-card overflow-hidden border border-hairline" style={{ background: "linear-gradient(135deg, rgba(0,178,75,0.16), rgba(0,117,255,0.10))" }}>
+      <section className="rounded-card overflow-hidden border border-hairline" style={{ background: "linear-gradient(135deg, rgba(0,85,135,0.07), rgba(255,255,255,0.9))" }}>
         <div className="p-6 md:p-8 space-y-3">
-          <p className="text-caption text-muted uppercase">Control-panel upgrade</p>
+          <p className="text-caption text-primary uppercase tracking-widest">Project overview</p>
           <h1 className="text-display font-extrabold">{project.data?.name ?? "Project"}</h1>
           <p className="text-body max-w-2xl">{project.data?.description}</p>
           <div className="flex flex-wrap gap-2">
@@ -52,8 +52,9 @@ export default function ProjectOverviewPage() {
             <Pill>{snapshots.data?.[0]?.name ?? "No snapshot"}</Pill>
           </div>
           <div className="flex flex-wrap gap-2 pt-2">
+            <Link href={`/projects/${projectId}/chat`}><Button>Ask AI about this project</Button></Link>
             <Link href={`/projects/${projectId}/investigate`}>
-              <Button>Start investigation</Button>
+              <Button variant="secondary">Start investigation</Button>
             </Link>
             <Link href={`/projects/${projectId}/documents`}>
               <Button variant="secondary">Upload records</Button>

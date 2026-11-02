@@ -56,6 +56,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["plant_memory*"]
 
+[tool.setuptools.package-data]
+plant_memory = ["prompts/*.txt"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

@@ -1,20 +1,27 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-canvas: #141415;
-  --color-surface: #2e3035;
-  --color-hairline: #2d2f33;
-  --color-ink: #f0f2f5;
-  --color-muted: #9aa1b1;
-  --color-faint: #53575f;
-  --color-primary: #00b24b;
-  --color-secondary: #0075ff;
+  --color-canvas: #f4f7fb;
+  --color-surface: #ffffff;
+  --color-hairline: #dce4ed;
+  --color-ink: #183047;
+  --color-muted: #5b6d80;
+  --color-faint: #65778b;
+  --color-primary: #005587;
+  --color-secondary: #006da8;
   --color-on-primary: #ffffff;
   --color-black: #000000;
+  --color-background: var(--color-canvas);
+  --color-foreground: var(--color-ink);
+  --color-muted-foreground: var(--color-muted);
+  --color-primary-foreground: var(--color-on-primary);
+  --color-border: var(--color-hairline);
+  --color-accent: var(--color-surface);
+  --color-ring: var(--color-secondary);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  --text-display: 33px;
+  --text-display: 36px;
   --text-display--line-height: 1.1;
   --text-display--font-weight: 800;
   --text-heading: 20px;
@@ -24,7 +31,7 @@
   --text-title--line-height: 1.3;
   --text-title--font-weight: 600;
   --text-body: 14px;
-  --text-body--line-height: 1.4;
+  --text-body--line-height: 1.65;
   --text-body--font-weight: 600;
   --text-ui: 13px;
   --text-ui--line-height: 1.3;
@@ -43,10 +50,10 @@
 
 html,
 body {
-  background: #141415;
-  color: #f0f2f5;
+  background: #f4f7fb;
+  color: #183047;
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 600;
+  font-weight: 400;
   min-height: 100%;
 }
 
@@ -55,7 +62,7 @@ body {
 }
 
 ::selection {
-  background: #0075ff;
+  background: #006da8;
   color: #ffffff;
 }
 
@@ -70,7 +77,7 @@ input:focus,
 textarea:focus,
 select:focus,
 button:focus-visible {
-  outline: 2px solid #0075ff;
+  outline: 2px solid #006da8;
   outline-offset: 2px;
 }
 
@@ -87,3 +94,34 @@ button:focus-visible {
 .pm-hide-scroll::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes pm-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pm-in {
+  animation: pm-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-in {
+    animation: none;
+  }
+}
+
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+button, a { transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease; }
+button:not(:disabled), select { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+h1, h2, h3 { letter-spacing: -0.025em; }
+main { max-width: 1600px; margin-inline: auto; }
+.pm-hero { background: linear-gradient(115deg, #eaf2f8, #fff 72%); }
+.pm-grid { background-image: linear-gradient(#00558708 1px, transparent 1px), linear-gradient(90deg, #00558708 1px, transparent 1px); background-size: 32px 32px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

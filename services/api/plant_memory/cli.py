@@ -94,7 +94,7 @@ def seed_demo(args) -> None:
         sn = c.post(f"/v1/projects/{project['id']}/snapshots", json={"name": f"{args.variant} baseline"}, headers=h)
         sn.raise_for_status()
         print(f"snapshot {sn.json()['id']} with {len(sn.json()['document_version_ids'])} versions")
-        print(json.dumps({"project_id": project["id"], "snapshot_id": sn.json()["id"], "token": tok}))
+        print(json.dumps({"project_id": project["id"], "snapshot_id": sn.json()["id"]}))
 
 
 def ingest_pending(args) -> None:

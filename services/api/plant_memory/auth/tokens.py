@@ -30,7 +30,7 @@ def issue_dev_token(user_id: uuid.UUID, email: str, ttl_seconds: int = 8 * 3600)
 
 def verify_user_token(token: str) -> dict:
     s = get_settings()
-    if s.auth_backend == "dev":
+    if s.auth_backend in ("dev", "session"):
         return jwt.decode(token, s.auth_dev_secret, algorithms=["HS256"], audience="plant-memory", issuer="plant-memory-dev")
     if s.auth_backend == "cognito":
         if not (s.cognito_user_pool_id and s.cognito_region):
