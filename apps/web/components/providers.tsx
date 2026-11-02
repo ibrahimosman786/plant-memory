@@ -53,10 +53,15 @@ export function useEvidence() {
   return ctx;
 }
 
-export function Providers({ children }: { children: ReactNode }) {
+function ProvidersCore({
+  children,
+  signOutImpl,
+}: {
+  children: ReactNode;
+  signOutImpl: () => void;
+}) {
   const router = useRouter();
   const pathname = usePathname();
-  const { signOut } = useClerk();
   const [token, setTokenState] = useState<string | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [ready, setReady] = useState(false);
@@ -124,8 +129,12 @@ export function Providers({ children }: { children: ReactNode }) {
     setTokenState(null);
     setMe(null);
     getQueryClient().clear();
-    void signOut({ redirectUrl: "/login" }).catch(() => router.replace("/login"));
-  }, [router, signOut]);
+    try {
+      signOutImpl();
+    } catch {
+      router.replace("/login");
+    }
+  }, [router, signOutImpl]);
 
   const auth = useMemo(() => ({ ready, token, me, login, logout }), [ready, token, me, login, logout]);
   const evidence = useMemo(
@@ -143,5 +152,28 @@ export function Providers({ children }: { children: ReactNode }) {
         <EvidenceContext.Provider value={evidence}>{children}</EvidenceContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>
+  );
+}
+
+function ProvidersWithClerk({ children }: { children: ReactNode }) {
+  const { signOut } = useClerk();
+  const router = useRouter();
+  const signOutImpl = useCallback(() => {
+    void signOut({ redirectUrl: "/login" }).catch(() => router.replace("/login"));
+  }, [router, signOut]);
+  return <ProvidersCore signOutImpl={signOutImpl}>{children}</ProvidersCore>;
+}
+
+export function Providers({ children }: { children: ReactNode }) {
+  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return <ProvidersWithClerk>{children}</ProvidersWithClerk>;
+  }
+  return (
+    <ProvidersCore signOutImpl={() => {
+      if (typeof window !== "undefined") window.location.assign("/login");
+    }}
+    >
+      {children}
+    </ProvidersCore>
   );
 }

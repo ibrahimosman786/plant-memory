@@ -6,6 +6,11 @@ import { useAuth } from "@/components/providers";
 import { Button } from "@/components/ui/button";
 
 export function ClerkEntry() {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return null;
+  return <ClerkEntryLoaded />;
+}
+
+function ClerkEntryLoaded() {
   const { isLoaded, isSignedIn } = useClerkAuth();
   const { login, token } = useAuth();
   const [error, setError] = useState<string | null>(null);

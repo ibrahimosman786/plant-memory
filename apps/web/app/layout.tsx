@@ -15,25 +15,28 @@ export const metadata: Metadata = {
   description: "Agentic upgrade-assessment workspace for Spartan Controls. Reads plant records, drafts findings, scope, estimate, and tests. An engineer still reviews the draft.",
 };
 
+const clerkAppearance = {
+  variables: {
+    colorBackground: "#ffffff",
+    colorForeground: "#183047",
+    colorPrimary: "#005587",
+    colorInput: "#f4f7fb",
+    colorInputForeground: "#183047",
+    colorMutedForeground: "#5b6d80",
+    borderRadius: "0.5rem",
+  },
+} as const;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const tree = <Providers>{children}</Providers>;
   return (
     <html lang="en" className={`${inter.variable} h-full bg-canvas antialiased`}>
       <body className="min-h-full bg-canvas font-sans font-normal text-ink">
-        <ClerkProvider
-          appearance={{
-            variables: {
-              colorBackground: "#ffffff",
-              colorForeground: "#183047",
-              colorPrimary: "#005587",
-              colorInput: "#f4f7fb",
-              colorInputForeground: "#183047",
-              colorMutedForeground: "#5b6d80",
-              borderRadius: "0.5rem",
-            },
-          }}
-        >
-          <Providers>{children}</Providers>
-        </ClerkProvider>
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? (
+          <ClerkProvider appearance={clerkAppearance}>{tree}</ClerkProvider>
+        ) : (
+          tree
+        )}
       </body>
     </html>
   );
